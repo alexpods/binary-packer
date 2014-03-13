@@ -1,0 +1,29 @@
+{
+    "name": "binary-packer",
+    "version": "0.0.0",
+    "description": "Convertation of arbitrary type javascript data to binary",
+    "author": {
+        "name":  "Aleksey Podskrebyshev (Alex Pods)",
+        "email": "aleksey.podskrebyshev@gmail.com"
+    },
+    "homepage": "https://github.com/alexpods/binary-packer",
+    "main": "dist/binary-packer.js",
+    "keywords": [
+        "",
+        "class",
+        "inheritance",
+        "encapsulation",
+        "polymorphism"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url":  "http://github.com/alexpods/binary-packer.git"
+    },
+    "devDependencies": {
+        "grunt": "~0.4.4",
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-uglify": "~0.4.0"
+    },
+    "readmeFilename": "README.md"
+}
