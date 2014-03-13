@@ -14,6 +14,10 @@ module.exports = function(grunt) {
                 src: [
                     "src/_prefix",
                     "src/helpers.js",
+
+                    "src/Packer.js",
+                    "src/DataType/*.js",
+
                     "src/_suffix"
                 ],
                 options: {

@@ -1,4 +1,16 @@
 
-    return {};
+    return {
+        Packer: Packer,
+        DataType: {
+            Undefined:      DataType_Undefined,
+            Null:           DataType_Null,
+            Boolean:        DataType_Boolean,
+            Number:         DataType_Number,
+            String:         DataType_String,
+            Array:          DataType_Array,
+            SimpleObject:   DataType_SimpleObject,
+            Buffer:         DataType_Buffer
+        }
+    };
 
 }));
