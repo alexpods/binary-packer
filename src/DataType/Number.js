@@ -5,13 +5,16 @@ var DataType_Number = {
         return Object.prototype.toString.call(value) === '[object Number]';
     },
 
-    pack: function(number) {
-        var buffer = new Buffer(8);
-        buffer.writeDoubleLE(number, 0);
-        return buffer;
+    pack: function(number, callback) {
+        var binary = this.createBinary(); new Buffer(8);
+        binary.write('Float64', number, function() {
+            callback(binary);
+        });
     },
 
-    unpack: function(buffer) {
-        return [buffer.readDoubleLE(0), 8]
+    unpack: function(binary, callback) {
+        binary.read('Float64', function(number) {
+            callback(number, 8);
+        });
     }
 };

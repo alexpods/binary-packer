@@ -7,7 +7,7 @@ var DataType_String = {
 
     pack: function(string) {
 
-        var length = Buffer.byteLength(string);
+        var length = Binary.countByteLength(string);
         var buffer = new Buffer(4 + length);
 
         buffer.writeInt32LE(length, 0);

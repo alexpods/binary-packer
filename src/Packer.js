@@ -1,19 +1,59 @@
-function Packer(dataTypes) {
-    this._dataTypes = [];
-    this._dataTypesIndex = {};
+function Packer(binayMode, dataTypes) {
 
-    Packer.init(this, dataTypes);
+    this._dataTypes         = [];
+    this._dataTypesIndex    = {};
+    this._binaryMode        = undefined;
+
+    Packer.init(this, binaryMode, dataTypes);
 }
 
 _.extend(Packer, {
 
-    init: function(that, dataTypes) {
-        that.setDataTypes(dataTypes);
+    BINARY_MODE: {
+        BUFFER: 'Buffer',
+        BLOB:   'Blob'
+    },
+
+    isBinaryModeSupported: function(binaryMode) {
+        var modes = this.BINARY_MODE;
+        for (var name in modes) {
+            if (modes[name] === binaryMode) {
+                return true;
+            }
+        }
+        return false;
+    },
+
+    init: function(that, binaryMode, dataTypes) {
+        if (_.isArray(binaryMode)) {
+            dataTypes  = binaryMode;
+            binaryMode = undefined;
+        }
+        if (!binaryMode) {
+            binaryMode = process && Buffer ? Packer.BINARY_MODE.BUFFER : Packer.BINARY_MODE.BLOB;
+        }
+        dataTypes = dataTypes || [];
+
+        return that
+            .setBinaryMode(binaryMode)
+            .setDataTypes(dataTypes);
     }
 
 });
 
 _.extend(Transport_Packer.prototype, {
+
+    getBinaryMode: function() {
+        return this._binaryMode;
+    },
+
+    setBinaryMode: function(binaryMode) {
+        if (!Packer.isBinaryModeSupported(binaryMode)) {
+            throw new Error('Binary mode "' + binaryMode + '" does not supported!');
+        }
+        this._binaryMode = binaryMode;
+        return this;
+    },
 
     getDataTypes: function() {
         return this._dataTypes;
@@ -47,7 +87,6 @@ _.extend(Transport_Packer.prototype, {
 
         var index = this._dataTypes.push(dataType) - 1;
         this._dataTypesIndex[dataType.name] = index;
-
         return this;
     },
 
@@ -151,6 +190,13 @@ _.extend(Transport_Packer.prototype, {
         var data = dataType.unpack.call(this, binary.slice(1));
 
         return [data[0], data[1]+1];
+    },
+
+    createBinary: function() {
+        switch (this.getBinaryMode()) {
+            case Packer.BINARY_MODE.BUFFER: return new Binary_Buffer();
+            case Packer.BINARY_MODE.BLOB:   return new Binary_Blob();
+        }
     }
 
 });

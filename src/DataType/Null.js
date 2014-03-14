@@ -6,7 +6,7 @@ var DataType_Null = {
     },
 
     pack: function() {
-        return new Buffer([]);
+        return [this.createBinary(), 0];
     },
 
     unpack: function() {
