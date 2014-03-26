@@ -1,15 +1,14 @@
 var DataType_Null = {
-    name: 'null',
 
-    condition: function(value) {
-        return value === null;
+    check: function(value) {
+        return _.isNull(value);
     },
 
-    pack: function() {
-        return [this.createBinary(), 0];
+    pack: function(value, callback) {
+        callback(this.createBinary());
     },
 
-    unpack: function() {
-        return [null, 0];
+    unpack: function(binary, callback) {
+        callback(null);
     }
 };

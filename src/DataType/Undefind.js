@@ -1,15 +1,14 @@
 var DataType_Undefined = {
-    name: 'undefined',
 
-    condition: function(value) {
-        return typeof value === 'undefined';
+    check: function(value) {
+        return _.isUndefined(value);
     },
 
-    pack: function() {
-        return [this.createBinary(), 0];
+    pack: function(value, callback) {
+        callback(this.createBinary());
     },
 
-    unpack: function() {
-        return [undefined, 0];
+    unpack: function(binary, callback) {
+        callback(undefined);
     }
 };

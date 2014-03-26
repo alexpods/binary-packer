@@ -1,18 +1,18 @@
-var DataType_Number = {
+var DataType_Date = {
 
     check: function(value) {
-        return _.isNumber(value);
+        return value instanceof Date;
     },
 
     pack: function(value, callback) {
-        this.createBinary().writeDouble(value, function(binary) {
+        this.createBinary().writeDouble(value.getTime(), function(binary) {
             callback(binary);
         });
     },
 
     unpack: function(binary, callback) {
         binary.readDouble(function(value) {
-            callback(value);
+            callback(new Date(value));
         });
     }
 };

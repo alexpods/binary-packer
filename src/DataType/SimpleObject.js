@@ -5,39 +5,80 @@ var DataType_SimpleObject = {
         return ({}).constructor === value.constructor;
     },
 
-    pack: function(object) {
-        var buffers = [];
-        for (var param in object) {
-            buffers.push(this.pack(param));
-            buffers.push(this.pack(object[param]));
+    pack: function(object, callback) {
+        var binaries = [];
+        var packer   = this;
+
+        for (var key in object) {
+            (function(key, value) {
+
+                var keyIndex = binaries.push(false) - 1;
+                packer.doPack(key, function(keyBinary) {
+                    packer.createBinary().writeUInt32(keyBinary.getLength(), function(keyLengthBinary) {
+                        binaries[keyIndex] = [keyLengthBinary, keyBinary];
+                        checkBinaries();
+                    });
+
+                });
+
+                var valueIndex = binaries.push(false) - 1;
+                packer.doPack(value, function(valueBinary) {
+                    packer.createBinary().writeUInt32(valueBinary.getLength(), function(valueLengthBinary) {
+                        binaries[valueIndex] = [valueLengthBinary, valueBinary];
+                        checkBinaries();
+                    });
+                })
+
+            })(key, object[key]);
         }
-        buffers.push(new Buffer('\u0000', 'utf8'));
-        return Buffer.concat(buffers);
+
+        function checkBinaries() {
+            var i, ii, hasEmpty = false;
+
+            for (i = 0, ii = binaries.length; i < ii; ++i) {
+                if (!binaries[i]) {
+                    hasEmpty = true;
+                    break;
+                }
+            }
+
+            if (hasEmpty) {
+                return;
+            }
+
+            var concatBinaries = [];
+            for (i = 0, ii = binaries.length; i < ii; ++i) {
+                concatBinaries = concatBinaries.concat(binaries[i]);
+            }
+
+            callback(packer.createBinary(concatBinaries));
+        }
     },
 
-    unpack: function(buffer) {
-        var keyData, key, keyLength, valueData, value, valueLength;
+    unpack: function(binary, callback) {
 
-        var length = 0;
-        var object = {};
+        var object  = {};
+        var packer  = this;
+        var key     = null;
 
-        while ('\u0000' !== buffer.toString('utf8', length, length+1)) {
-            keyData = this.unpack(buffer.slice(length));
-            key       = keyData[0];
-            keyLength = keyData[1];
+        readNextValue(binary, function setValue(value, binary) {
+            if (key) {
+                object[key] = value;
+                key = null;
+                if (!binary.getLength()) {
+                    callback(object);
+                }
+            }
 
-            length += keyLength;
+            readNextValue(binary, setValue);
+        });
 
-            valueData = this.unpack(buffer.slice(length));
-            value       = valueData[0];
-            valueLength = valueData[1];
-
-            length += valueLength;
-
-            object[key] = value;
+        function readNextValue(binary, callback) {
+            binary.readUInt32(function(valueLength, binary) {
+                packer.doUnpack(binary.slice(0, valueLength), function(value) {
+                    callback(value, binary.slice(valueLength));
+                });
+            });
         }
-        length += 1;
-
-        return [object, length];
     }
 };
